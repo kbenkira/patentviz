@@ -29,12 +29,14 @@ patents_scraped = []
 for patent_id in conf.patent_ids: 
 
 	url = "http://google.com/patents/" + str(patent_id)
+	url = 'http://www.google.fr/patents/US20030191577'
+	url = 'http://www.google.fr/patents/US8538675'
 	page = rq.get(url)
 	data = ""
 	data += page.content + "\n"
 	soup = BeautifulSoup(data)
 
-	
+		
 	patent = Patent(patent_id)
 
 	#Partie Othmane : détails généraux 
@@ -46,43 +48,43 @@ for patent_id in conf.patent_ids:
 
 	### Patents that are referenced  
 	cited_patent = []
-	cited_patent_html = []
-	cited_patent_html_ = []
-	#soup.find_all('table', {'class' : 'patent-data-table'})[0]
+	citing_patent = []
 
 
 	references_html = soup.find_all('th', {'class' : 'patent-data-table-th'})
 	table_titles = []
 	for ref in references_html:
 		table_titles.append(ref.get_text().encode('ascii','ignore'))
-	if 'Cited Patent' in table_titles:
+
+	if ('Cited Patent' in table_titles) or ('Brevet cité' in table_titles):
+		cited_patent = get_cited_patent(soup)
+		if ('Citing Patent' in table_titles) or ('Brevet citant' in table_titles):
+			citing_patent = get_citing_patent(soup,1)
+	else:
+		if ('Citing Patent' in table_titles) or ('Brevet citant' in table_titles):
+			citing_patent = get_citing_patent(soup,0)
+
+
+	def get_citing_patent(soup,position):
+
+		citing_patent = []
+
+		citing_patent_html = soup.find_all('table', {'class' : 'patent-data-table'})[position]
+		citing_patent_html_ = citing_patent_html.find_all('td',{'class' : 'patent-data-table-td citation-patent'})
+		for item in citing_patent_html_:
+			citing_patent.append(item.get_text().encode('ascii','ignore').split(' ')[0])
+
+		return citing_patent
+
+	def get_cited_patent(soup):
+
+		cited_patent = []
+
 		cited_patent_html = soup.find_all('table', {'class' : 'patent-data-table'})[0]
 		cited_patent_html_ = cited_patent_html.find_all('td', {'class' : 'patent-data-table-td citation-patent'})
 		for item in cited_patent_html_:
-			cited_patent.append(item.next.get_text().encode('ascii','ignore'))
+			cited_patent.append(item.next.get_text().encode('ascii','ignore').split(' ')[0])
 
-	if 'Citing Patent' in table_titles:
-		print('yes')
-
-	ref = soup.find_all('tr',{'class' : 'patent-data-table'})
-	if ref[0]:
-		ref[0].nextSibling()
-
-	if ref[1]:
-
-	patents_cited = soup.find_all("td", {"class" : "patent-data-table-td citation-patent"})
-	for patent in patents_cited:
-		patent_referenced_id = patent.get_text().encode('ascii','ignore')
-		reference.append(patent_referenced_id[0:len(patent_referenced_id )-2])
-
-	patent.reference = reference
-
-	### Patets which reference this one 
-
-	referenced_by = []
-	patents_referenced_by = soup.find_all("td", {"class" : "patent-data-table-td citation-patent"})
-
-		
-
+		return cited_patent
 
 	
