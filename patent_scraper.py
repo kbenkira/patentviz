@@ -29,14 +29,20 @@ patents_scraped = []
 for patent_id in conf.patent_ids: 
 
 	url = "http://google.com/patents/" + str(patent_id)
+	url = ''
 	url = 'http://www.google.fr/patents/US20030191577'
 	url = 'http://www.google.fr/patents/US8538675'
+	url = 'http://www.google.fr/patents/US20120079076'
+	#url = 'http://www.google.fr/patents/US20130070783'
+	url = 'http://www.google.fr/patents/US20020110134'
+	#.fr ou .com ??? ça change la langue des balises et des string : citations de brevets VS patent citations
+
 	page = rq.get(url)
 	data = ""
 	data += page.content + "\n"
 	soup = BeautifulSoup(data)
 
-		
+	
 	patent = Patent(patent_id)
 
 	#Partie Othmane : détails généraux 
@@ -51,17 +57,23 @@ for patent_id in conf.patent_ids:
 	citing_patent = []
 
 
-	references_html = soup.find_all('th', {'class' : 'patent-data-table-th'})
+	#references_html = soup.find_all('span', {'class' : 'patent-section-title'})
+	references_html = soup.find_all('div',{'class' : {'patent-section-header'}})
+		
 	table_titles = []
-	for ref in references_html:
-		table_titles.append(ref.get_text().encode('ascii','ignore'))
+	#for ref in references_html:
+	#	table_titles.append(ref.get_text().encode('ascii','ignore').replace(' ',''))
 
-	if ('Cited Patent' in table_titles) or ('Brevet cité' in table_titles):
+	for ref in references_html:
+		table_titles.append(ref.get_text().encode('ascii','ignore').replace(' ',''))
+		
+
+	if 'Citationsdebrevets' in table_titles:
 		cited_patent = get_cited_patent(soup)
-		if ('Citing Patent' in table_titles) or ('Brevet citant' in table_titles):
-			citing_patent = get_citing_patent(soup,1)
+		if 'Rfrencpar' in table_titles:
+			citing_patent = get_citing_patent(soup,table_titles.index('Rfrencpar')-table_titles.index('Citationsdebrevets'))
 	else:
-		if ('Citing Patent' in table_titles) or ('Brevet citant' in table_titles):
+		if 'Rfrencpar' in table_titles:
 			citing_patent = get_citing_patent(soup,0)
 
 
