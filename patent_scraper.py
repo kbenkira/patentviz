@@ -5,6 +5,7 @@ import csv
 import logging
 import conf 
 import time
+import json
 
 class Patent:
 
@@ -52,9 +53,23 @@ for patent_id in patent_ids[0:15]:
 	patent = Patent(patent_id)
 
 	#Partie Othmane : détails généraux 
+	patent.title=soup.find('invention-title').get_text().encode('ascii','ignore')
+	patent.publication_date= soup.find_all('td', {'class':"single-patent-bibdata"})[3].get_text().encode('ascii','ignore')
+	patent.summary = soup.find('div', {'class':"abstract"}).get_text().encode('ascii','ignore')
+	inventors = []
+	assignee = []
+	info = soup.find_all('span', {'class':"patent-bibdata-value"})
+	for a in info:
+		if a.find('a') != None:
+			if a.find('a').get('href') != None:
+				le_href = a.find('a').get('href')
+				if "ininventor" in le_href: 
+					inventors.append(a.get_text().encode('ascii','ignore'))
+				if "inassignee" in le_href: 
+					assignee.append(a.get_text().encode('ascii','ignore'))
 
-
-
+	patent.inventors = inventors
+	patent.assignee = assignee
 
 	#Partie Kamal : citations et références 
 
@@ -63,6 +78,12 @@ for patent_id in patent_ids[0:15]:
 	patent.international_classification = get_classification(soup)
 	patents_scraped.append(patent)
 	time.sleep(3)
+
+#Dump to json
+
+print json.dumps(patents_scraped)
+out = open("brevets.json", "w")	
+out.write(json.dumps(patents_scraped))
 
 def get_citing_patent(soup):
 
