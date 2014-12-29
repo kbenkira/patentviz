@@ -90,7 +90,7 @@ for patent_id in patent_ids[0:5]:
 	patent = Patent(patent_id)
 
 	patent.title=soup.find('invention-title').get_text().encode('ascii','ignore')
-	patent.publication_date= soup.find_all('td', {'class':"single-patent-bibdata"})[3].get_text().encode('ascii','ignore')
+	patent.publication_date= soup.find('td', text = 'Publication date', attrs = {'class' : 'patent-bibdata-heading'}).next.next.get_text().encode('ascii','ignore')
 	patent.summary = soup.find('div', {'class':"abstract"}).get_text().encode('ascii','ignore')
 	inventors = []
 	assignee = []
