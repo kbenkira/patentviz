@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re 
 import csv
 import logging
-import conf 
+from conf import *
 import time
 import json
 
