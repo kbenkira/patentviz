@@ -68,7 +68,7 @@ def get_classification(soup):
 
 
 patents_scraped = [] 
-for patent_id in patent_ids[0:15]: 
+for patent_id in patent_ids[0:5]: 
 
 	url = "http://www.google.fr/patents/" + str(patent_id)
 	'''
@@ -108,12 +108,48 @@ for patent_id in patent_ids[0:15]:
 	patent.assignee = assignee
 
 	patent.reference = get_cited_patent(soup)
-	patent.reference_by = get_citing_patent(soup)
+	patent.referenced_by = get_citing_patent(soup)
 	patent.international_classification = get_classification(soup)
 	patents_scraped.append(patent)
 	time.sleep(3)
 
 #Dump to json
+result = ''
+result += '{'
+for patent in patents_scraped:
+	result += '['
+	result+='{'
+	result+='"id" :' + '"' + patent.id + '",'
+	result+='"title" :' + '"' + patent.title + '",'
+	result+='"publication_date" :' + '"' + patent.publication_date + '",'
+	result+='"summary" :' + '"' + patent.summary + '",'
+
+	result+='"assignee" : ['
+	for item in patent.assignee:
+		result+= '"' + item + '",' 
+	result+="]"
+	result+='"inventors" : ['
+	for item in patent.inventors:
+		result+= '"' + item + '",' 
+	result+="]"
+	result+='"reference" : ['
+	for item in patent.reference:
+		result+= '"' + item + '",' 
+	result+="]"
+	result+='"referenced_by" : ['
+	for item in patent.referenced_by:
+		result+= '"' + item + '",' 
+	result+="]"
+	result+='"international_classification" : ['
+	for item in patent.international_classification:
+		result+= '"' + item + '",' 
+	result+="]"
+
+	#result+='"inventors" :' + '"' + patent.inventors + '",'
+	#result+='"reference" :' + '"' + patent.reference + '",'
+	#result+='"referenced_by" :' + '"' + patent.referenced_by + '",'
+	#result+='"international_classification" :' + '"' + patent.international_classification + '",'
+result += "}"
 
 print json.dumps(patents_scraped)
 out = open("brevets.json", "w")	
