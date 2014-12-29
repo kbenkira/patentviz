@@ -116,6 +116,7 @@ for patent_id in patent_ids[0:5]:
 #Dump to json
 result = ''
 result += '{'
+patents_len = len(patents_scraped)
 for patent in patents_scraped:
 	result += '['
 	result+='{'
@@ -125,30 +126,47 @@ for patent in patents_scraped:
 	result+='"summary" :' + '"' + patent.summary + '",'
 
 	result+='"assignee" : ['
-	for item in patent.assignee:
-		result+= '"' + item + '",' 
-	result+="]"
-	result+='"inventors" : ['
-	for item in patent.inventors:
-		result+= '"' + item + '",' 
-	result+="]"
-	result+='"reference" : ['
-	for item in patent.reference:
-		result+= '"' + item + '",' 
-	result+="]"
-	result+='"referenced_by" : ['
-	for item in patent.referenced_by:
-		result+= '"' + item + '",' 
-	result+="]"
-	result+='"international_classification" : ['
-	for item in patent.international_classification:
-		result+= '"' + item + '",' 
-	result+="]"
+	for i in range(len(patent.assignee)):
+		if i < (len(patent.assignee) - 1):
+			result+= '"' + patent.assignee[i] + '",' 
+		else:
+			result+= '"' + patent.assignee[i]	
+	result+="],"
 
-	#result+='"inventors" :' + '"' + patent.inventors + '",'
-	#result+='"reference" :' + '"' + patent.reference + '",'
-	#result+='"referenced_by" :' + '"' + patent.referenced_by + '",'
-	#result+='"international_classification" :' + '"' + patent.international_classification + '",'
+	result+='"inventors" : ['
+	for i in range(len(patent.inventors)):
+		if i < (len(patent.inventors) - 1):
+			result+= '"' + patent.inventors[i] + '",' 
+		else:
+			result+= '"' + patent.inventors[i]	
+	result+="],"
+	
+	result+='"reference" : ['
+	for i in range(len(patent.reference)):
+		if i < (len(patent.reference) - 1):
+			result+= '"' + patent.reference[i] + '",' 
+		else:
+			result+= '"' + patent.reference[i]	
+	result+="],"
+	
+	result+='"referenced_by" : ['
+	for i in range(len(patent.referenced_by)):
+		if i < (len(patent.referenced_by) - 1):
+			result+= '"' + patent.referenced_by[i] + '",' 
+		else:
+			result+= '"' + patent.referenced_by[i]	
+	result+="],"
+	
+	for i in range(len(patent.international_classification)):
+		if i < (len(patent.international_classification) - 1):
+			result+= '"' + patent.international_classification[i] + '",' 
+		else:
+			result+= '"' + patent.international_classification[i]
+	if patent == patents_scraped[patents_len-1]:
+		result+="]"			
+	else: 
+		result+="],"
+
 result += "}"
 
 print json.dumps(patents_scraped)
