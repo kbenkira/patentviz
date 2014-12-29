@@ -93,7 +93,6 @@ for patent_id in patent_ids[0:5]:
 	d = soup.find('td', text = ' Date de publication', attrs = {'class' : 'patent-bibdata-heading'})
 	if d:
 		patent.publication_date=d.next.next.get_text().encode('ascii','ignore')
-	
 	patent.summary = soup.find('div', {'class':"abstract"}).get_text().encode('ascii','ignore')
 	inventors = []
 	assignee = []
@@ -116,7 +115,17 @@ for patent_id in patent_ids[0:5]:
 	patents_scraped.append(patent)
 	time.sleep(3)
 
-#Dump to json
+#Dump to json final 
+result2 = '[\n'
+for pat in patents_scraped: 
+	result2 += json.dumps(pat.__dict__) + ',\n'
+result2 = result2.rstrip(',') +']'
+out = open("brevets.json", "w")	
+out.write(result2)
+
+
+#Dump to json old
+'''
 result = ''
 result += '{'
 for patent in patents_scraped:
@@ -153,11 +162,8 @@ for patent in patents_scraped:
 	#result+='"referenced_by" :' + '"' + patent.referenced_by + '",'
 	#result+='"international_classification" :' + '"' + patent.international_classification + '",'
 result += "}"
-
-print json.dumps(patents_scraped)
-out = open("brevets.json", "w")	
-out.write(json.dumps(patents_scraped))
-
+'''
+#print json.dumps(patents_scraped)
 
 
 '''
