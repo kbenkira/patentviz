@@ -68,7 +68,7 @@ def get_classification(soup):
 
 
 patents_scraped = [] 
-for patent_id in patent_ids[0:5]: 
+for patent_id in patent_ids[0:100]: 
 
 	url = "http://www.google.fr/patents/" + str(patent_id)
 	'''
@@ -178,7 +178,18 @@ for patent in patents_scraped:
 		result+="]"			
 	else: 
 		result+="],"
+	for item in patent.referenced_by:
+		result+= '"' + item + '",' 
+	result+="]"
+	result+='"international_classification" : ['
+	for item in patent.international_classification:
+		result+= '"' + item + '",' 
+	result+="]"
 
+	#result+='"inventors" :' + '"' + patent.inventors + '",'
+	#result+='"reference" :' + '"' + patent.reference + '",'
+	#result+='"referenced_by" :' + '"' + patent.referenced_by + '",'
+	#result+='"international_classification" :' + '"' + patent.international_classification + '",'
 result += "}"
 '''
 #print json.dumps(patents_scraped)
