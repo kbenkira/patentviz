@@ -143,3 +143,33 @@ button, input
 {
 	vertical-align: middle;
 }
+
+#World
+{
+	position:absolute;
+	width:100%;
+	top:306px;
+}
+
+.dateBarChart
+{
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+	display:inline-block;
+	height:503px;
+	line-height:503px;
+	width:100%;
+}
+
+.dateBarChart div 
+{
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+	display:inline-block;
+	width:40px;
+}

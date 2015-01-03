@@ -25,5 +25,6 @@ $(function(){
 		$("#menu_filter").delay(1400).animate({
 		top:"201px"
 		}, 600);
+		$("#World").delay(2000).fadeIn(600);
 	});
 });
