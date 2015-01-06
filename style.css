@@ -151,7 +151,7 @@ button, input
 	top:306px;
 }
 
-.dateBarChart
+.chart
 {
 	text-align:center;
 	margin-left:auto;
@@ -162,14 +162,13 @@ button, input
 	width:100%;
 }
 
-.dateBarChart div 
+.chart rect
 {
+	fill:rgb(254,165,0);
+}
+
+.chart text {
+	fill: black;
 	font: 10px sans-serif;
-	background-color: steelblue;
-	text-align: right;
-	padding: 3px;
-	margin: 1px;
-	color: white;
-	display:inline-block;
-	width:40px;
+	text-anchor: middle;
 }
