@@ -14,17 +14,19 @@ $(".icone").click(function(){
 	if(!$(this).hasClass("activate")){
 		unactivate($(".activate"));
 		$(this).addClass("activate");
+		activate($(".activate"));
 	}
 });
 
 function activate(object){
-	iconActive(object);
 	$(object).addClass("activate");
+	$("."+object.attr('id')+"Chart").show();
 }
 
 function unactivate(object){
 	iconUnactive(object);
 	$(object).removeClass("activate");
+	$("."+object.attr('id')+"Chart").hide();
 }
 
 function iconActive(object){
