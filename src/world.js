@@ -25,15 +25,13 @@ $.getJSON("brevets.json", function(data){
 function loadReference(){
 	var links = [];
 	var nodes = {};
-	var note = {};
+	var children = {};
 	$.each(dataBase, function(key, val){
 		var id = val.id,
 			referencedBy = val.referenced_by,
 			reference = val.reference;
-		note[id] = 1;
 		$.each(referencedBy, function(k,v){
 			links.push({"source": v, "target": id});
-			note[id]++;
 		});
 		$.each(reference, function(k,v){
 			links.push({"source": id, "target": v});
@@ -41,12 +39,41 @@ function loadReference(){
 	});
 	$.each(links, function(key, link){
 		link.source = nodes[link.source] || 
-			(nodes[link.source] = {name: link.source, value: note[link.source]||1});
+			(nodes[link.source] = {name: link.source, hidden: false});
 		link.target = nodes[link.target] || 
-			(nodes[link.target] = {name: link.target, value: note[link.target]||1});
+			(nodes[link.target] = {name: link.target, hidden: false});
 	});
+	
 	referenceData.nodes = d3.values(nodes);
 	referenceData.links = links;
+	$.each(referenceData.nodes, function(key, val){
+		val.childrenReferenceBy = [];
+		val.childrenReference = [];
+		var tmpRChildren = $.grep(referenceData.links, function(v){
+			return v.source.name == val.name;
+		});
+		var tmpRBChildren = $.grep(referenceData.links, function(v){
+			return v.target.name == val.name;
+		});
+		$.each(tmpRChildren, function(k, v){
+			val.childrenReference.push(v.target);
+		});	
+		$.each(tmpRBChildren, function(k, v){
+			val.childrenReferenceBy.push(v.source);
+		});	
+		if((val.childrenReference.length == 0 && val.childrenReferenceBy.length == 1)||(val.childrenReference.length == 1 && val.childrenReferenceBy.length == 0)){
+			val.isEndOfGraph = true;
+			val.hidden = true;
+			if(val.childrenReference.length == 1){
+				val.childrenReference[0].hidden = true;
+			}
+			if(val.childrenReferenceBy.length == 1){
+				val.childrenReferenceBy[0].hidden = true;
+			}
+		}else{
+			val.isEndOfGraph = false;
+		}
+	});
 }
 
 function loadReferenceChart(){
@@ -55,56 +82,101 @@ function loadReferenceChart(){
 	var color = d3.scale.category20();
 
 	var force = d3.layout.force()
-		.nodes(referenceData.nodes)
-		.links(referenceData.links)
 		.size([width, height])
 		.linkDistance(60)
-		.charge(-30)
-		.on("tick", tick)
-		.start();
+		.charge(-60)
+		.on("tick", tick);
 
 	var svg = d3.select(".chart")
 				.append("g")
 				.attr("class", "referenceChart")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+	var path = svg.append("svg:g").selectAll("path"), 
+		node = svg.selectAll(".node");
+	update();
 
-	// build the arrow.
-	svg.append("svg:defs").selectAll("marker")
-		.data(["end"])      // Different link/path types can be defined here
-	  .enter().append("svg:marker")    // This section adds in the arrows
-		.attr("id", String)
-		.attr("viewBox", "0 -5 10 10")
-		.attr("refX", 15)
-		.attr("refY", -1.5)
-		.attr("markerWidth", 6)
-		.attr("markerHeight", 6)
-		.attr("orient", "auto")
-	  .append("svg:path")
-		.attr("d", "M0,-5L10,0L0,5");
+	function update(){
+		var nodes = updateNodes(),
+			links = updateLinks();
+			
+		force
+			.nodes(nodes)
+			.links(links)
+			.start();
+			
+		// build the arrow.
+		svg.append("svg:defs").selectAll("marker")
+			.data(["end"])      // Different link/path types can be defined here
+		  .enter().append("svg:marker")    // This section adds in the arrows
+			.attr("id", String)
+			.attr("viewBox", "0 -5 10 10")
+			.attr("refX", 15)
+			.attr("refY", -1.5)
+			.attr("markerWidth", 6)
+			.attr("markerHeight", 6)
+			.attr("orient", "auto")
+		  .append("svg:path")
+			.attr("d", "M0,-5L10,0L0,5");
 
-	// add the links and the arrows
-	var path = svg.append("svg:g").selectAll("path")
-		.data(force.links())
-	  .enter().append("svg:path")
-	//    .attr("class", function(d) { return "link " + d.type; })
-		.attr("class", "link")
-		.attr("marker-end", "url(#end)");
+		// add the links and the arrows
+		path = path.data(force.links());
+		path.exit().remove();
+		path.enter().append("svg:path")
+		//    .attr("class", function(d) { return "link " + d.type; })
+			.attr("class", "link")
+			.attr("marker-end", "url(#end)");
 
-	// define the nodes
-	var node = svg.selectAll(".node")
-		.data(force.nodes())
-	  .enter().append("g")
-		.attr("class", "node")
-		.style("fill", color(1))
-		.call(force.drag);
+		// define the nodes
+		node = node.data(force.nodes());
+		node.exit().remove();
+		var nodeEnter = node.enter().append("g")
+			.attr("class", "node")
+			//.style("visibility", function(d){if(d.valueR == 0 && d.valueRB <2){return "hidden"}else{return "visible"}})
+			.on("click", click)
+			.call(force.drag);
 
-	// add the nodes
-	node.append("circle")
-		.attr("r", rayonMin);
+		// add the nodes
+		nodeEnter.append("circle")
+			.attr("r", rayonMin);
 
-	// add the text 
-	node.append("title")
-		.text(function(d) { return d.name; });
+		// add the text 
+		nodeEnter.append("title")
+			.text(function(d) { return d.name; });
+			
+		node.select("circle")
+			.style("fill", function(d){return color(d.isEndOfGraph? 3 : d.hidden? 1 : 2);});
+			
+			
+	}
+		
+		// Toggle children on click.
+	function click(d) {
+	  if (!d3.event.defaultPrevented) {
+		if((d.childrenReference.length > 1)||(d.childrenReferenceBy.length > 1)){
+			if(checkChildren(d)){
+				d.hidden = !d.hidden;
+				update();
+			}
+		}
+	  }
+	}
+	
+	function checkChildren(obj){
+		var rep = false;
+		$.each(obj.childrenReference, function(key, val){
+			if(val.isEndOfGraph){
+				rep = true;
+				val.hidden = !val.hidden;
+			}
+		});
+		$.each(obj.childrenReferenceBy, function(key, val){
+			if(val.isEndOfGraph){
+				rep = true;
+				val.hidden = !val.hidden;
+			}
+		});
+		return rep;
+	}
 
 	// add the curvy lines
 	function tick() {
@@ -122,7 +194,27 @@ function loadReferenceChart(){
 
 		node
 			.attr("transform", function(d) { 
-			return "translate(" + d.x + "," + d.y + ")"; });
+				return "translate(" + d.x + "," + d.y + ")"; });
+	}
+	
+	function updateNodes(){
+		var nodes = [];
+		$.each(referenceData.nodes, function(key, val){
+			if(!(val.hidden&&val.isEndOfGraph)){
+				nodes.push(val);
+			}
+		});
+		return nodes;
+	}
+	
+	function updateLinks(){
+		var links = [];
+		$.each(referenceData.links, function(key, val){
+			if(!((val.source.hidden&&val.source.isEndOfGraph)||(val.target.hidden&&val.target.isEndOfGraph))){
+				links.push(val);
+			}
+		});
+		return links;
 	}
 }
 
