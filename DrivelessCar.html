@@ -1,0 +1,61 @@
+<html>
+<head>
+    <title>Driveless Car</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <section id="Application">
+        <section id="Home">
+			<div id="Logo">
+				<img src="images/logo_prehome.png">
+			</div>
+			<h1 id="home_title">
+				<span>
+				Trouvez le brevet</br> de véhicules autonomes </br>qui vous intéresse.
+				<span>
+			</h1>
+			<div id="home_subtitle">
+				<span>
+				Driveless Car est un projet de Datavisualiation mis en place</br> pour comprendre comment les brevets de véhicules autonomes </br> fonctionnent dans le monde entier
+				</span>
+			</div>
+			<a id="home_test" href="#">
+				Testez-le
+			</a>
+        </section>
+       
+        <section id="Menu">
+			<div id="menu_logo" class="menu" style="top: 1000px;">
+				<img src="images/logo_home.png">
+			</div>
+			<div id="menu_search" class="menu" style="top: 1000px;">
+				<span>
+					<input type="text" id="search_bar" placeholder="Recherche inventeur, entreprise...">
+					<button type="submit" title="Recherche par mots-clés">
+						<img src="images/search.png"/>
+					</button>
+				</span>
+			</div>
+			<div id="menu_filter" class="menu" style="top: 1000px;">
+				<img id="iconeInventor" class="icone activate" src="images/icone_inventeur2.png"/>
+				<img id="iconeClassification" class="icone" src="images/icone_classification.png"/>
+				<img id="iconeReference" class="icone" src="images/icone_reference.png"/>
+				<img id="iconeCitation" class="icone" src="images/icone_citation.png"/>
+				<img id="iconeDate" class="icone" src="images/icone_date.png"/>
+				<img id="iconeEntreprise" class="icone" src="images/icone_entreprise.png"/>
+			</div>
+        </section>
+		
+        <section id="World">
+			<svg class="chart"></svg>
+        </section>
+		
+    </section>
+	<script src="lib/jquery-2.1.3.min.js"></script>
+	<script src="lib/d3.min.js"></script>
+	<script src="src/home.js"></script>
+	<script src="src/menu.js"></script>
+	<script src="src/world.js"></script>
+	<script src="brevets.json" type="text/javascript"></script>
+</body>
