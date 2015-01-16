@@ -94,7 +94,7 @@ function loadReference(){
 
 function loadReferenceChart(){
 	var rayonMin = 5;
-	
+	var ctrl = false;
 	var color = d3.scale.category20();
 
 	var force = d3.layout.force()
@@ -181,14 +181,18 @@ function loadReferenceChart(){
 		// Toggle children on click.
 	function click(d) {
 	  if (!d3.event.defaultPrevented) {
-		if((d.childrenReference.length > 1)||(d.childrenReferenceBy.length > 1)){
+		if(d3.event.ctrlKey){
+			window.open("https://www.google.fr/patents/"+d.name);		
+		}
+		else if((d.childrenReference.length > 1)||(d.childrenReferenceBy.length > 1)){
 			if(checkChildren(d)){
 				d.hidden = !d.hidden;
 				update();
 			}
 		}
 	  }
-	}
+	}		
+
 	
 	function checkChildren(obj){
 		var rep = false;
@@ -341,6 +345,7 @@ function loadInventorChart(){
 						.attr("class", "node")
 						.attr("r", function(d){return rayonMin*d.value;})
 						.style("fill", function(d) { return color(d.group); })
+						.on("click", click)
 						.call(force.drag);
 
 	node.append("title")
@@ -354,6 +359,14 @@ function loadInventorChart(){
 
 		node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
 });
+
+	function click(d) {
+	  if (!d3.event.defaultPrevented) {
+		if(d3.event.ctrlKey){
+			window.open("http://patents.justia.com/inventor/"+d.name);		
+		}
+	  }
+	}
 	
 }
 
