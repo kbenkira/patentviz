@@ -5,7 +5,7 @@ var referenceData = {"nodes":[], "links":[]};
 var width = 740,
 height = 503;
 var marginLeft = ($(window).width()-width)/2;
-var margin = {top: 20, right: marginLeft, bottom: 30, left: marginLeft};
+var margin = {top: 0, right: marginLeft, bottom: 20, left: marginLeft};
 
 $(window).resize(function(){
 	marginLeft = ($(window).width()-width)/2;
@@ -395,7 +395,7 @@ function loadDateChart(){
 				.domain(dateData.map(function(d) {return d.year;}));
 	
 	var y = d3.scale.linear()
-				.range([height,0])
+				.range([height-margin.bottom,0])
 				.domain([0,d3.max(dateData, function(d){return d.value;})]);
 				
 	var xAxis = d3.svg.axis()
@@ -413,7 +413,7 @@ function loadDateChart(){
 					
 	chart.append("g")
 		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
+		.attr("transform", "translate(0," + (height-margin.bottom) + ")")
 		.call(xAxis);
 		
 	chart.append("g")
@@ -432,6 +432,6 @@ function loadDateChart(){
 		.attr("class", "bar")
 		.attr("x", function(d) { return x(d.year); })
 		.attr("y", function(d) { return y(d.value); })
-		.attr("height", function(d) { return height - y(d.value); })
+		.attr("height", function(d) { return height-margin.bottom - y(d.value); })
 		.attr("width", x.rangeBand());
 }
