@@ -2,16 +2,31 @@ var dataBase = {};
 var dateData = [];
 var inventorData = {"nodes":[], "links":[]};
 var referenceData = {"nodes":[], "links":[]};
-var margin = {top: 20, right: 30, bottom: 30, left: 40},
-width = 740 - margin.left - margin.right,
-height = 503 - margin.top - margin.bottom;
+var width = 740,
+height = 503;
+var marginLeft = ($(window).width()-width)/2;
+var margin = {top: 20, right: marginLeft, bottom: 30, left: marginLeft};
+
+$(window).resize(function(){
+	marginLeft = ($(window).width()-width)/2;
+	margin.right = marginLeft;
+	margin.left = marginLeft;
+	d3.select(".referenceChart")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	d3.select(".inventorChart")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	d3.select(".dateChart")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+});
 	
 
 $.getJSON("brevets.json", function(data){
+	if(marginLeft < 0) marginLeft = 0;
 	dataBase = data;
 	d3.select(".chart")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom);
+				.attr("width", width)
+				.attr("height", height)
+				.attr("pointer-events", "all");
 	loadDate();
 	loadInventor();
 	loadReference();
@@ -20,6 +35,7 @@ $.getJSON("brevets.json", function(data){
 	loadReferenceChart();
 	$(".dateChart").hide();
 	$(".referenceChart").hide();
+	$(".referenceLegend").hide();
 });
 
 function loadReference(){
@@ -90,10 +106,25 @@ function loadReferenceChart(){
 	var svg = d3.select(".chart")
 				.append("g")
 				.attr("class", "referenceChart")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+				.call(d3.behavior.zoom().on("zoom", redraw))
+				.append('g');
+				
+				svg.append('svg:rect')
+				.attr('width',width)
+				.attr("height", height)
+				.attr('fill', 'white');
+				
 	var path = svg.append("svg:g").selectAll("path"), 
 		node = svg.selectAll(".node");
 	update();
+	
+	function redraw() {
+  console.log("here", d3.event.translate, d3.event.scale);
+  svg.attr("transform",
+      "translate(" + d3.event.translate + ")"
+      + " scale(" + d3.event.scale + ")");
+}
 
 	function update(){
 		var nodes = updateNodes(),
@@ -122,7 +153,6 @@ function loadReferenceChart(){
 		path = path.data(force.links());
 		path.exit().remove();
 		path.enter().append("svg:path")
-		//    .attr("class", function(d) { return "link " + d.type; })
 			.attr("class", "link")
 			.attr("marker-end", "url(#end)");
 
@@ -131,7 +161,6 @@ function loadReferenceChart(){
 		node.exit().remove();
 		var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
-			//.style("visibility", function(d){if(d.valueR == 0 && d.valueRB <2){return "hidden"}else{return "visible"}})
 			.on("click", click)
 			.call(force.drag);
 
@@ -216,6 +245,7 @@ function loadReferenceChart(){
 		});
 		return links;
 	}
+
 }
 
 function loadInventor(){
@@ -250,11 +280,6 @@ function loadInventor(){
 		inventorData.nodes.push({"name": key, "value": val.value, "colleague":val.colleague, "group": val.group});
 		inv.push(key);
 	});
-	/*inventorData.nodes.push({"name": "gravityPoint", "value": 0, "colleague":"", "group": 0});
-	inventorData.nodes.push({"name": "gravityPoint", "value": 0, "colleague":"", "group": 1});
-	inventorData.nodes.push({"name": "gravityPoint", "value": 0, "colleague":"", "group": 2});
-	inventorData.nodes.push({"name": "gravityPoint", "value": 0, "colleague":"", "group": 3});
-	inventorData.nodes.push({"name": "gravityPoint", "value": 0, "colleague":"", "group": 4});*/
 	$.each(inventorData.nodes, function(key, val){
 		existingLinks.push(key);
 		$.each(val.colleague, function(k, v){
@@ -273,15 +298,31 @@ function loadInventorChart(){
 	var color = d3.scale.category20b();
 
 	var force = d3.layout.force()
-		.charge(-60)//function(d){if(d.name == "gravityPoint"){return 2000;}else{return -60;}})
+		.charge(-60)
 		.linkDistance(50)
 		.gravity(0.1)
 		.size([width, height]);
-
+			
 	var svg = d3.select(".chart")
 				.append("g")
 				.attr("class", "inventorChart")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+				.call(d3.behavior.zoom().on("zoom", redraw))
+				.append('g');
+	
+	svg.append('svg:rect')
+				.attr('width',width)
+				.attr("height", height)
+				.attr('fill', 'white');
+							
+
+	function redraw() {
+	  console.log("here", d3.event.translate, d3.event.scale);
+	  svg.attr("transform",
+		  "translate(" + d3.event.translate + ")"
+		  + " scale(" + d3.event.scale + ")");
+	}				
+				
 	
 	force
 		.nodes(inventorData.nodes)
@@ -289,21 +330,21 @@ function loadInventorChart(){
 		.start();
 
 	var link = svg.selectAll(".link")
-				.data(inventorData.links)
-				.enter().append("line")
-				.attr("class", "link")
-				.style("stroke-width", 3 );
+						.data(inventorData.links)
+						.enter().append("line")
+						.attr("class", "link")
+						.style("stroke-width", 3 );
 
 	var node = svg.selectAll(".node")
-				.data(inventorData.nodes)
-				.enter().append("circle")
-				.attr("class", "node")
-				.attr("r", function(d){return rayonMin*d.value;})
-				.style("fill", function(d) { return color(d.group); })
-				.call(force.drag);
+						.data(inventorData.nodes)
+						.enter().append("circle")
+						.attr("class", "node")
+						.attr("r", function(d){return rayonMin*d.value;})
+						.style("fill", function(d) { return color(d.group); })
+						.call(force.drag);
 
 	node.append("title")
-		.text(function(d) { return d.name; });
+		.text(function(d) { return d.name+": "+d.value; });
 
 	force.on("tick", function() {
 		link.attr("x1", function(d) { return d.source.x; })
@@ -311,10 +352,8 @@ function loadInventorChart(){
 			.attr("x2", function(d) { return d.target.x; })
 			.attr("y2", function(d) { return d.target.y; });
 
-			
-		node.attr("cx", function(d) { /*if(d.name == "gravityPoint"){return d.x = 185*d.group;}else{*/return d.x = Math.max(rayonMin, Math.min(width+20-rayonMin, d.x));} )
-			.attr("cy", function(d) { /*if(d.name == "gravityPoint"){return d.y = 250;}else{*/return d.y = Math.max(rayonMin, Math.min(height+20-rayonMin, d.y));} );
-	});
+		node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
+});
 	
 }
 

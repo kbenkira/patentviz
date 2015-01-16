@@ -21,12 +21,14 @@ $(".icone").click(function(){
 function activate(object){
 	$(object).addClass("activate");
 	$("."+object.attr('id')+"Chart").show();
+	$("."+object.attr('id')+"Legend").show();
 }
 
 function unactivate(object){
 	iconUnactive(object);
 	$(object).removeClass("activate");
 	$("."+object.attr('id')+"Chart").hide();
+	$("."+object.attr('id')+"Legend").hide();
 }
 
 function iconActive(object){

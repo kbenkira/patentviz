@@ -47,6 +47,28 @@
 		
         <section id="World">
 			<svg class="chart"></svg>
+			<svg class="legend">
+				<g class="inventorLegend">
+					<circle r="5" cy="60" cx="50" fill="rgb(0,174,239)"></circle>
+					<circle r="10" cy="60" cx="90" fill="rgb(0,174,239)"></circle>
+					<circle r="15" cy="60" cx="140" fill="rgb(0,174,239)"></circle>
+					<circle r="20" cy="60" cx="200" fill="rgb(0,174,239)"></circle>
+					<text font-size="10px" font-family="sans-serif" y="63" x="58">1</text>
+					<text font-size="10px" font-family="sans-serif" y="63" x="103">2</text>
+					<text font-size="10px" font-family="sans-serif" y="63" x="158">3</text>
+					<text font-size="10px" font-family="sans-serif" y="63" x="223">4</text>
+					<text font-size="18px" font-family="sans-serif" y="30" x="20">nombre de brevets par inventeur:</text>
+				</g>
+				<g class="referenceLegend">
+					<circle fill="rgb(255,127,14)" cx="40" cy="50" r="5"></circle>
+					<circle fill="rgb(31,119,180)" cx="40" cy="70" r="5"></circle>
+					<circle fill="rgb(174,199,232)" cx="40" cy="90" r="5"></circle>
+					<text x="47" y="53" font-family="sans-serif" font-size="10px">Brevet n'ayant qu'un seul lien avec un autre brevet</text>
+					<text x="47" y="73" font-family="sans-serif" font-size="10px">Brevet ayant plusieurs liens avec d'autres brevets (non déployé)</text>
+					<text x="47" y="93" font-family="sans-serif" font-size="10px">Brevet ayant plusieurs liens avec d'autres brevets (déployé)</text>
+					<text font-size="18px" font-family="sans-serif" y="30" x="130">Légende:</text>
+				</g>
+			</svg>
         </section>
 		
     </section>
