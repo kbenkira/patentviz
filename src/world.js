@@ -181,7 +181,7 @@ function loadReferenceChart(){
 		// Toggle children on click.
 	function click(d) {
 	  if (!d3.event.defaultPrevented) {
-		if(d3.event.ctrlKey){
+		if(d3.event.altKey){
 			window.open("https://www.google.fr/patents/"+d.name);		
 		}
 		else if((d.childrenReference.length > 1)||(d.childrenReferenceBy.length > 1)){
@@ -362,7 +362,7 @@ function loadInventorChart(){
 
 	function click(d) {
 	  if (!d3.event.defaultPrevented) {
-		if(d3.event.ctrlKey){
+		if(d3.event.altKey){
 			window.open("http://patents.justia.com/inventor/"+d.name);		
 		}
 	  }
